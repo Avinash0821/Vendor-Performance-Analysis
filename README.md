@@ -25,17 +25,16 @@ The goal of this project is to evaluate vendor performance based on key metrics 
 Vendor-Performance-Analysis/
 │
 ├── SQL/
-│   └── data_extraction.sql       # Raw data queries and joins
+│   └── ingestion_db.py
+        exloratory_data_analysis.ipynb       # EDA, outlier handling, KPIs in Python, Data cleaning and transformation
 │
 ├── Python/
-│   ├── vendor_analysis.ipynb     # EDA, outlier handling, KPIs in Python
-│   └── preprocessing.py          # Data cleaning and transformation
+│   ├── Vendor Performance Analysis.ipynb    # Raw data queries and joins 
+│   └── preprocessing.py                     
 │
 ├── PowerBI/
-│   └── vendor_dashboard.pbix     # Interactive dashboard with filters and KPIs
+│   └── Vendor Performance Visualization.pbix     # Interactive dashboard with filters and KPIs
 │
-├── images/
-│   └── dashboard_screenshot.png  # Dashboard preview
 │
 └── README.md                     # Project documentation
 ```
@@ -59,7 +58,7 @@ Vendor-Performance-Analysis/
 * Dynamic KPIs for trend tracking
 * Drill-through reports for vendor-specific performance
 
-![Dashboard Screenshot](images/dashboard_screenshot.png)
+![Dashboard Screenshot](<img width="1407" height="790" alt="image" src="https://github.com/user-attachments/assets/edd24550-9de0-41d8-923a-3cbccc59f0f2" />)
 
 ---
 
@@ -77,10 +76,11 @@ Vendor-Performance-Analysis/
 
 ## 📈 DAX Measures in Power BI
 
-* `OnTimeDeliveryRate = DIVIDE(OnTimeDeliveries, TotalDeliveries)`
-* `DefectRate = DIVIDE(DefectiveItems, TotalItemsReceived)`
-* `VendorRating = AVERAGE(VendorScore)`
-* `AverageLeadTime = AVERAGEX(Deliveries, DeliveryDate - OrderDate)`
+* `BrandPerformance = SUMMARIZE(vendor_sale_summary,vendor_sale_summary[Description],"TotalSales", SUM(vendor_sale_summary[TotalSalesDollars]),"AvgProfitMargin", AVERAGE(vendor_sale_summary[ProfitMargin]))`
+* `TargetBrand = IF([TotalSales] <= PERCENTILEX.INC(BrandPerformance, BrandPerformance[TotalSales], 0.15) && [AvgProfitMargin] >= PERCENTILEX.INC(BrandPerformance, BrandPerformance[AvgProfitMargin], 0.85),"Yes","No")`
+* `LowTurnoverVendor = VAR FilterData = FILTER(vendor_sale_summary, vendor_sale_summary[StockTurnover] < 1)   RETURN SUMMARIZE(FilterData,vendor_sale_summary[VendorName], "avgStockTurnOver", AVERAGE(vendor_sale_summary[StockTurnover]))`
+* `PurchaseCountribution = SUMMARIZE(vendor_sale_summary, vendor_sale_summary[VendorName], "TotalPurchaseDollars",SUM(vendor_sale_summary[TotalPurchaseDollars]))`
+* `PurchaseContribution% = ROUND(PurchaseCountribution[TotalPurchaseDollars]/SUM(PurchaseCountribution[TotalPurchaseDollars])*100,2)`
 
 ---
 
